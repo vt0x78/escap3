@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+
+import string
+import argparse
+import sys
+from time import sleep
+
+letters = string.ascii_letters
+num = string.digits
+common = letters + num
+
+def full_encode(data):
+    for byte in data:
+        print(f'\\x{byte:02x}', end='')
+    print()
+
+def special_chars_encode(data):
+    for byte in data:
+        if chr(byte) not in common:
+            print(f'\\x{byte:02x}', end='')
+        else:
+            print(chr(byte), end='')
+    print()
+
+def main():
+    parse = argparse.ArgumentParser(description=f'hexcode escape to your payloads, usage example: escap3 -p "__class__" -s')
+    group = parse.add_mutually_exclusive_group(required=True)
+    group.add_argument('-f', '--full', action='store_true', help='encode full payload')
+    group.add_argument('-s', '--special', action='store_true', help='encode only special characters')
+    parse.add_argument('-p', '--payload', type=str, help='payload to be encoded', required=True)
+    
+    if len(sys.argv) == 1:
+        parse.print_help()
+        print()
+        sys.exit()
+    
+    args = parse.parse_args()
+
+    if args.full:
+        print('\n\033[92m[+]\033[0m generating full payload encoded for \"%s\"' % args.payload, end='\n\n')
+        sleep(1)
+        full_encode(args.payload.encode('utf-8'))
+        print()
+    elif args.special:
+        print('\n\033[92m[+]\033[0m generating special characters encoded payload for \"%s\"' % args.payload, end='\n\n')
+        sleep(1)
+        special_chars_encode(args.payload.encode('utf-8'))
+        print()
+    else:
+        print('at least one of -f or -s must be specified')
+        parse.print_help()
+        print()
+        sys.exit()
+        
+if __name__ == "__main__":
+    main()
+    
